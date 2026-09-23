@@ -6,14 +6,13 @@ import { UserPlus, Mail, Lock, User, ArrowRight, Loader } from "lucide-react";
 import { useUserStore } from "../stores/useUserStore";
 
 const SignupPage = () => {
-  const loading = false; // Replace with actual loading state from your authentication logic
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
-  const { signup } = useUserStore();
+  const { signup, loading } = useUserStore();
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -21,7 +20,6 @@ const SignupPage = () => {
       [name]: value,
     }));
   };
-
 
   const handleSubmit = (e) => {
     e.preventDefault();

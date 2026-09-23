@@ -3,18 +3,18 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {  Mail, Lock, User, ArrowRight, Loader, LogIn } from "lucide-react";
+import { useUserStore } from "../stores/useUserStore";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const loading =false; // Replace with actual loading state from your authentication logic
  
- const { login } = useUserStore();
- 
+ const { login, loading } = useUserStore();
+
    const handleSubmit = (e) => {
      e.preventDefault();
      console.log({ email, password });
-    
+    login(email, password);
    };
    return (
     <div className="flex flex-col justify-center py-12 sm:px-6 lg:px-8 min-h-screen">
