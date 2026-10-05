@@ -29,6 +29,16 @@ export const useProductStore = create((set) => ({
       toast.error(error.message || "Failed to fetch products");
     }
   },
+  fetchProductsByCategory: async (category) => {
+    set({ loading: true });
+    try {
+      const response = await axios.get(`/product/category/${category}`);
+      set({ products: response.data.products, loading: false });
+    } catch (error) {
+      set({ error: "Failed to fetch products by category", loading: false });
+      toast.error(error.message || "Failed to fetch products by category");
+    }
+  },
   deleteProduct: async (productId) => {
     set({ loading: true });
     try {
@@ -49,7 +59,7 @@ export const useProductStore = create((set) => ({
         //this will update the product in the store with the new featured status
         set((prevProducts) => ({
           products: prevProducts.products.map((product) =>
-            product._id === productId ? { ...product, isFeatured: response.data.isFeatured } : product
+            product._id === productId ? { ...product, isFeatured: response.data.product.isFeatured } : product
           ),
           loading: false,
         }));
