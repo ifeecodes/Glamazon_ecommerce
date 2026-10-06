@@ -1,11 +1,14 @@
-import React from "react";
 import { ShoppingCart, UserPlus, LogIn, LogOut, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useUserStore } from "../stores/useUserStore";
+import { useCartStore } from "../stores/useCartStore";
+
 
 const Navbar = () => {
   const { user, logout } = useUserStore();
   const isAdmin = user?.role === "admin";
+
+  const { cart } = useCartStore();
   return (
     <header className="fixed top-0 left-0 w-full bg-gray-900 bg-opacity-90 backdrop-blur-md shadow-lg z-40 transition-all duration-300 border-b border-blue-800">
       <div className="container min-w-auto px-4 py-3">
@@ -27,7 +30,9 @@ const Navbar = () => {
             <Link to={"/cart"} className="relative group text-gray-300 group-hover:text-blue-300 duration-300 ease-in-out">
               <ShoppingCart className="inline-block mr-1 group-hover:text-blue-300" size={20} />
               <span className="hidden sm:inline">Cart</span>
-              <span className="absolute -top-2 -left-2 bg-violet-700 text-white rounded-full px-1.5 py-0.5 text-xs group-hover:bg-violet-600 transition duration-300 ease-in-out">3</span>
+              <span className="absolute -top-2 -left-2 bg-violet-700 text-white rounded-full px-1.5 py-0.5 text-xs group-hover:bg-violet-600 transition duration-300 ease-in-out">
+                {cart.length}
+              </span>
             </Link>
           )}
           {isAdmin && (

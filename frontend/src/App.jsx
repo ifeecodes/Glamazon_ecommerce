@@ -30,7 +30,7 @@ function App() {
       {/* Background */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute inset-0">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_top,_#7546E8_0%,_#000080_46%,_#020817_100%)]" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_top,#7546E8_0%,#000080_46%,#020817_100%)]" />
         </div>
       </div>
 
