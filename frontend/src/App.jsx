@@ -2,6 +2,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { useUserStore } from "./stores/useUserStore";
+import { useCartStore } from "./stores/useCartStore";
 import { useEffect } from "react";
 
 //Pages
@@ -10,6 +11,7 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import AdminPage from "./pages/AdminPage";
 import CategoryPage from "./pages/CategoryPage";
+import CartPage from "./pages/CartPage";
 
 //Components
 import Navbar from "./components/Navbar";
@@ -19,10 +21,18 @@ import LoadingSpinner from "./components/LoadingSpinner";
 
 function App() {
   const { user, checkAuth, CheckingAuth } = useUserStore();
+  const { getCartItems } = useCartStore();
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+  useEffect(() => {
+    if (user) {
+      getCartItems();
+    }
+  }, [user, getCartItems]);
+
   if (CheckingAuth) return <LoadingSpinner />;
 
   return (
@@ -53,6 +63,10 @@ function App() {
           <Route
             path="/category/:category"
             element={<CategoryPage />}
+          />
+          <Route
+            path="/cart"
+            element={ user ? <CartPage /> : <Navigate to="/login" /> }
           />
         </Routes>
       </div>
