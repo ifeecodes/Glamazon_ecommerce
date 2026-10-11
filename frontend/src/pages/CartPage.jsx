@@ -4,6 +4,8 @@ import { ShoppingCart } from "lucide-react";
 import CartItem from "../components/CartItem";
 import PeopleAlsoBought from "../components/PeopleAlsoBought";
 import { Link } from "react-router-dom";
+import OrderSummary from "../components/OrderSummary";
+import GiftCouponCard from "../components/GiftCouponCard";
 
 const CartPage = () => {
   const { cart } = useCartStore();
@@ -29,6 +31,7 @@ const CartPage = () => {
 						)}
 						{cart.length > 0 && <PeopleAlsoBought />}
 					</motion.div>
+					
 
 					{cart.length > 0 && (
 						<motion.div
@@ -37,7 +40,8 @@ const CartPage = () => {
 							animate={{ opacity: 1, x: 0 }}
 							transition={{ duration: 0.5, delay: 0.4 }}
 						>
-							
+							<OrderSummary />
+							<GiftCouponCard />
 						</motion.div>
 					)}
             </div>
@@ -46,9 +50,6 @@ const CartPage = () => {
     </div>
   )
 }
-
-
-
 export default CartPage
 
 const EmptyCartUI = () => (
@@ -68,4 +69,5 @@ const EmptyCartUI = () => (
 			Start Shopping
 		</Link>
 	</motion.div>
+	
 );
