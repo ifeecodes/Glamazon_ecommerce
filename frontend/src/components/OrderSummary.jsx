@@ -2,13 +2,49 @@ import { motion } from "framer-motion";
 import { useCartStore } from "../stores/useCartStore";
 import { MoveRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import axios from "../lib/axios";
+import toast from "react-hot-toast";
+import { loadStripe } from "@stripe/stripe-js";
+
+
+const stripePromise = loadStripe("pk_test_51UCEHRHvJ0ClBwpgOIROQT7jJPveSHgQ76IO5zpBtBWbLrljfxBHhBIdd5BpJk41m6lNlOT3j5xxSSSvuju1OBNF00HsytFEhB")
 
 const OrderSummary = () => {
-  const { total, subtotal, coupon, isCouponApplied } = useCartStore();
+  const { total, subtotal, coupon, isCouponApplied, cart } = useCartStore();
   const savings = subtotal - total;
   const formattedSubTotal = subtotal.toFixed(2);
   const formattedTotal = total.toFixed(2);
   const formattedSavings = savings.toFixed(2);
+
+  const handlePayment = async () => {
+    try {
+      const stripe = await stripePromise;
+      if (!stripe) {
+        throw new Error("Stripe.js failed to load");
+      }
+      const response = await axios.post("/payment/create-checkout-session", {
+        products: cart,
+        couponCode: coupon?.code || null,
+      });
+      const session = response.data;
+      console.log("Checkout session created:", session);
+      /**
+      |--------------------------------------------------
+      | if (!response.data.url) {
+        throw new Error("Checkout session URL was not returned");
+      }
+      window.location.assign(response.data.url);
+      |--------------------------------------------------
+      */
+    } catch (error) {
+      toast.error(
+        error.response?.data?.error ||
+          error.response?.data?.message ||
+          error.message ||
+          "Unable to start checkout",
+      );
+    }
+  };
   return (
     <motion.div
       className="space-y-4 rounded-lg border border-gray-700 bg-gray-800 p-4 shadow-sm sm:p-6"
@@ -23,14 +59,14 @@ const OrderSummary = () => {
             <dt className="text-base font-normal text-gray-300">
               Original price
             </dt>
-            <dd className="text-base font-medium text-white">${formattedSubTotal}</dd>
+            <dd className="text-base font-medium text-white">
+              ${formattedSubTotal}
+            </dd>
           </dl>
           {savings > 0 && (
             <dl className="flex items-center justify-between gap-4">
               <dt className="text-base font-normal text-gray-300">Savings</dt>
-              <dd
-                className="text-base font-medium text-blue-400"
-              >
+              <dd className="text-base font-medium text-blue-400">
                 -${formattedSavings}
               </dd>
             </dl>
@@ -41,18 +77,14 @@ const OrderSummary = () => {
               <dt className="text-base font-normal text-gray-300">
                 Coupon ({coupon.code})
               </dt>
-              <dd
-                className="text-base font-medium text-blue-400"
-              >
+              <dd className="text-base font-medium text-blue-400">
                 -{coupon.discountPercentage}%
               </dd>
             </dl>
           )}
           <dl className="flex items-center justify-between gap-4 border-t border-gray-600 pt-2">
             <dt className="text-base font-bold text-white">Total</dt>
-            <dd
-              className="text-base font-bold text-blue-400"
-            >
+            <dd className="text-base font-bold text-blue-400">
               ${formattedTotal}
             </dd>
           </dl>
@@ -61,6 +93,7 @@ const OrderSummary = () => {
           className="flex w-full items-center justify-center rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
+          onClick={handlePayment}
         >
           Proceed to Checkout
         </motion.button>
