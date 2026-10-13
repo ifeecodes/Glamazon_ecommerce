@@ -88,11 +88,11 @@ try {
 
       set((prevState) => {
         const existingItem = prevState.cart.find(
-          (item) => item.productId === product._id,
+          (item) => String(item._id) === String(product._id),
         );
         const newCart = existingItem
           ? prevState.cart.map((item) =>
-              item.productId === product._id
+              String(item._id) === String(product._id)
                 ? { ...item, quantity: item.quantity + 1 }
                 : item,
             )
@@ -111,7 +111,9 @@ try {
     try {
       await axios.delete(`/cart`, { data: { productId } });
       set((prevState) => ({
-        cart: prevState.cart.filter((item) => item._id !== productId),
+        cart: prevState.cart.filter(
+          (item) => String(item._id) !== String(productId),
+        ),
       }));
       get().calculateTotals();
     } catch (error) {
@@ -127,7 +129,9 @@ try {
       await axios.put(`/cart/${productId}`, { quantity });
       set((prevState) => ({
         cart: prevState.cart.map((item) =>
-          item._id === productId ? { ...item, quantity } : item,
+          String(item._id) === String(productId)
+            ? { ...item, quantity }
+            : item,
         ),
       }));
       get().calculateTotals();
