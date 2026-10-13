@@ -5,7 +5,7 @@ import { useEffect } from "react";
 
 const categories = [
   { href: "/jeans", name: "Jeans", imageUrl: "/jeans.jpg" },
-  { href: "/tshirts", name: "T-Shirts", imageUrl: "/tshirt.jpg" },
+  { href: "/t-shirts", name: "T-Shirts", imageUrl: "/tshirt.jpg" },
   { href: "/shoes", name: "Shoes", imageUrl: "/heels.jpg" },
   { href: "/jackets", name: "Jackets", imageUrl: "/hoodie.jpg" },
   { href: "/suits", name: "Suits", imageUrl: "/suit.jpg" },

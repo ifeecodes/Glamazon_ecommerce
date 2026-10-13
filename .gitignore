@@ -32,3 +32,4 @@ backend/uploads/
 frontend/public/uploads/
 
 .vscode/
+.github/

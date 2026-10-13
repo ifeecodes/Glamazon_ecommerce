@@ -17,12 +17,12 @@ import analyticsRoutes from "./routes/analytics.route.js";
 
 // Load environment variables from .env file before using them
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-dotenv.config({ path: path.join(__dirname, ".env") });
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
+
+const __dirname = path.resolve();
 
 app.use(express.json({limit: "10mb"}));//allow json data to be sent in the request body
 app.use(express.urlencoded({ extended: true }));
@@ -34,6 +34,13 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/coupon", couponRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/analytics", analyticsRoutes);
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "/frontend/dist")));
+  app.get("*", (req,res) => {
+    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+  });
+}
 
 
 app.listen(PORT, () => {

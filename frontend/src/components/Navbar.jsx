@@ -27,7 +27,7 @@ const Navbar = () => {
             Home
           </Link>
           {user && (
-            <Link to={"/cart"} className="relative group text-gray-300 group-hover:text-blue-300 duration-300 ease-in-out">
+            <Link to={"/cart"} className="relative group text-gray-300 hover:text-blue-300 duration-300 ease-in-out">
               <ShoppingCart className="inline-block mr-1 group-hover:text-blue-300" size={20} />
               <span className="hidden sm:inline">Cart</span>
               { cart.length > 0 && (
