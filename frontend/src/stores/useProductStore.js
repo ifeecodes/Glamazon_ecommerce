@@ -15,8 +15,11 @@ export const useProductStore = create((set) => ({
         loading: false,
       }));
     } catch (error) {
-      toast.error("Failed to create product");
       set({ loading: false });
+      toast.error(
+        error.response?.data?.message || error.message || "Failed to create product",
+      );
+      throw error;
     }
   },
   fetchAllProduct: async () => {
@@ -66,6 +69,16 @@ export const useProductStore = create((set) => ({
     } catch (error) {
       set({ loading: false });
       toast.error(error.message || "Failed to toggle featured product");
+    }
+  },
+  fetchFeaturedProducts: async () => {
+    set({ loading: true });
+    try {
+      const response = await axios.get("/product/featured");
+      set({ products: response.data.products, loading: false });
+    } catch (error) {
+      set({ error: "Failed to fetch featured products", loading: false });
+      console.log("Error fetching featured products", error);
     }
   },
 }));

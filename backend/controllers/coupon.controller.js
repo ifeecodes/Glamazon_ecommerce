@@ -3,13 +3,17 @@ import Coupon from "../models/coupon.model.js";
 export const getCoupon = async (req, res) => {
   try {
     const coupon = await Coupon.findOne({
-      userId: req.user_id,
+      userId: req.user._id,
       isActive: true,
     });
     if (!coupon) {
-      return res.status(404).json({ message: "No active coupon found" });
+      return res.status(200).json(null);
     }
-    res.status(200).json(coupon || null);
+    res.status(200).json({
+      code: coupon.code,
+      discountPercentage: coupon.discount,
+      expirationDate: coupon.expirationDate,
+    });
   } catch (error) {
     console.error("Error in getCoupon controller:", error);
     res
@@ -21,7 +25,11 @@ export const getCoupon = async (req, res) => {
 export const validateCoupon = async (req, res) => {
   try {
     const { code } = req.body;
-    const coupon = await Coupon.findOne({ code, isActive: true });
+    const coupon = await Coupon.findOne({
+      code,
+      userId: req.user._id,
+      isActive: true,
+    });
     if (!coupon) {
       return res
         .status(404)
@@ -38,7 +46,7 @@ export const validateCoupon = async (req, res) => {
       .json({
         message: "Coupon is valid",
         code: coupon.code,
-        discountPercentage: coupon.discountPercentage,
+        discountPercentage: coupon.discount,
       });
   } catch (error) {
     console.error("Error in validateCoupon controller:", error);

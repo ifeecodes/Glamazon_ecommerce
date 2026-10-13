@@ -4,10 +4,6 @@ import { MoveRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import axios from "../lib/axios";
 import toast from "react-hot-toast";
-import { loadStripe } from "@stripe/stripe-js";
-
-
-const stripePromise = loadStripe("pk_test_51UCEHRHvJ0ClBwpgOIROQT7jJPveSHgQ76IO5zpBtBWbLrljfxBHhBIdd5BpJk41m6lNlOT3j5xxSSSvuju1OBNF00HsytFEhB")
 
 const OrderSummary = () => {
   const { total, subtotal, coupon, isCouponApplied, cart } = useCartStore();
@@ -18,24 +14,15 @@ const OrderSummary = () => {
 
   const handlePayment = async () => {
     try {
-      const stripe = await stripePromise;
-      if (!stripe) {
-        throw new Error("Stripe.js failed to load");
-      }
       const response = await axios.post("/payment/create-checkout-session", {
         products: cart,
-        couponCode: coupon?.code || null,
+        couponCode: isCouponApplied ? coupon?.code || null : null,
       });
-      const session = response.data;
-      console.log("Checkout session created:", session);
-      /**
-      |--------------------------------------------------
-      | if (!response.data.url) {
-        throw new Error("Checkout session URL was not returned");
+      const { url } = response.data;
+      if (!url) {
+        throw new Error("Checkout URL was not returned by the server");
       }
-      window.location.assign(response.data.url);
-      |--------------------------------------------------
-      */
+      window.location.assign(url);
     } catch (error) {
       toast.error(
         error.response?.data?.error ||

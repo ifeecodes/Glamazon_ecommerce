@@ -1,12 +1,30 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCartStore } from "../stores/useCartStore";
+import toast from "react-hot-toast";
 
 const GiftCouponCard = () => {
-  const [userInputCode, setUserInputCode] = useState("");
-  const { coupon, isCouponApplied } = useCartStore();
+  const [userInputCode, setUserInputCode] = useState(null);
+  const {
+    coupon,
+    availableCoupon,
+    isCouponApplied,
+    applyCoupon,
+    removeCoupon,
+    getMyCoupon,
+  } = useCartStore();
+
+  useEffect(() => {
+    getMyCoupon();
+  }, [getMyCoupon]);
+
   const handleApplyCoupon = () => {
-    console.log(userInputCode);
+    const code = (userInputCode ?? availableCoupon?.code ?? "").trim();
+    if (!code) {
+      toast.error("Please enter a coupon code");
+      return;
+    }
+    applyCoupon(code);
   };
   const handleRemoveCoupon = async () => {
     await removeCoupon();
@@ -34,7 +52,7 @@ const GiftCouponCard = () => {
             p-2.5 text-sm text-white placeholder-gray-400 focus:border-blue-500 
             focus:ring-blue-500"
             placeholder="Enter code here"
-            value={userInputCode}
+            value={userInputCode ?? availableCoupon?.code ?? ""}
             onChange={(e) => setUserInputCode(e.target.value)}
             required
           />
@@ -68,14 +86,16 @@ const GiftCouponCard = () => {
           </motion.button>
         </div>
       )}
-      {coupon && (
-				<div className='mt-4'>
-					<h3 className='text-lg font-medium text-gray-300'>Your Available Coupon:</h3>
-					<p className='mt-2 text-sm text-gray-400'>
-						{coupon.code} - {coupon.discountPercentage}% off
-					</p>
-				</div>
-			)}
+      {availableCoupon && (
+        <div className="mt-4">
+          <h3 className="text-lg font-medium text-gray-300">
+            Your Available Coupon:
+          </h3>
+          <p className="mt-2 text-sm text-gray-400">
+            {availableCoupon.code} - {availableCoupon.discountPercentage}% off
+          </p>
+        </div>
+      )}
     </motion.div>
   );
 };

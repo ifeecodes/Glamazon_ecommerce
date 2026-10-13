@@ -3,19 +3,18 @@ import axios from "../lib/axios";
 import toast from "react-hot-toast";
 
 
-export const useUserStore = create((set, get) => ({
+export const useUserStore = create((set) => ({
   user: null,
   loading: false,
   checkingAuth: true,
-  isCheckingAuth: true,
 
   signup: async (formData) => {
     const { name, email, password, confirmPassword } = formData;
-    set({ loading: true });
     if (password !== confirmPassword) {
-      set({ loading: false });
-      return toast.error("Passwords do not match.");
+      toast.error("Passwords do not match.");
+      return;
     }
+    set({ loading: true });
     try {
       const response = await axios.post("/auth/signup", {
         name,
@@ -27,9 +26,10 @@ export const useUserStore = create((set, get) => ({
       toast.success("Account created successfully!");
     } catch (error) {
       set({ loading: false });
-      toast.error("Failed to create account.");
+      toast.error(error.response?.data?.message || "Failed to create account.");
     }
   },
+
   login: async (email, password) => {
     set({ loading: true });
     try {
@@ -55,13 +55,56 @@ export const useUserStore = create((set, get) => ({
   },
 
   checkAuth: async () => {
-    set({ CheckingAuth: true });
+    set({ checkingAuth: true });
     try {
       const response = await axios.get("/auth/profile");
-      set({ user: response.data, CheckingAuth: false });
-    } catch (error) {
-      console.log(error.message)
-      set({ CheckingAuth: false, user: null });
+      set({ user: response.data });
+    } catch {
+      set({ user: null });
+    } finally {
+      set({ checkingAuth: false });
     }
   },
+
+  refreshToken: async () => {
+    const response = await axios.post("/auth/refresh-token");
+    return response.data;
+  },
 }));
+
+
+let refreshPromise = null;
+axios.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    const authRequest = [
+      "/auth/login",
+      "/auth/signup",
+      "/auth/logout",
+      "/auth/refresh-token",
+    ].some((path) => originalRequest?.url?.includes(path));
+
+    if (
+      error.response?.status === 401 &&
+      originalRequest &&
+      !originalRequest._retry &&
+      !authRequest
+    ) {
+      originalRequest._retry = true;
+      const currentRefresh = refreshPromise ??= useUserStore.getState().refreshToken();
+      try {
+        await currentRefresh;
+        return axios(originalRequest);
+      } catch (refreshError) {
+        useUserStore.setState({ user: null });
+        return Promise.reject(refreshError);
+      } finally {
+        if (refreshPromise === currentRefresh) {
+          refreshPromise = null;
+        }
+      }
+    }
+    return Promise.reject(error);
+  }
+);

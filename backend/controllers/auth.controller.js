@@ -138,7 +138,7 @@ export const refreshToken = async (req, res) => {
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: "15m" },
     );
-    res.clearCookie("accessToken", accessToken, {
+    res.cookie("accessToken", accessToken, {
       httpOnly: true, //prevent client-side JS from accessing the cookie. Prevents XSS attacks, cross-site scripting attacks. Only accessible by the server
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",

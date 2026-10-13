@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { PlusCircle, Upload, Loader } from "lucide-react";
 import { useProductStore } from "../stores/useProductStore";
@@ -14,6 +14,7 @@ const categories = [
 ];
 
 const CreateProductForm = () => {
+  const imageInputRef = useRef(null);
   const [newProduct, setNewProduct] = useState({
     name: "",
     description: "",
@@ -35,8 +36,12 @@ const CreateProductForm = () => {
         category: "",
         image: ""
   });
+    imageInputRef.current.value = "";
     } catch (error) {
-        console.log("Error Creating Product")
+          console.error(
+            "Error creating product:",
+            error.response?.data?.message || error.message,
+          );
     }
 };
 
@@ -160,8 +165,10 @@ const CreateProductForm = () => {
           <input
             type="file"
             id="image"
+            ref={imageInputRef}
             className="sr-only"
             accept="image/*"
+            required
             onChange={handleImageChange}
           />
           <label

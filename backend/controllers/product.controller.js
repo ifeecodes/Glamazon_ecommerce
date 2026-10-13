@@ -35,22 +35,33 @@ export const getFeaturedProducts = async (req, res) => {
 
 export const createProduct = async (req, res) => {
   try {
-    const { name, description, price, image, category } = req.body;
+    const { name, description, price, image, category } = req.body ?? {};
+    const requiredFields = [name, description, image, category];
 
-    let cloudinaryResponse = null;
-    if (image) {
-      cloudinaryResponse = await cloudinary.uploader.upload(image, {
-        folder: "products",
+    if (requiredFields.some((value) => typeof value !== "string" || !value.trim())) {
+      return res.status(400).json({
+        message: "Name, description, image, and category are required.",
       });
     }
+
+    const hasPrice =
+      (typeof price === "number" || typeof price === "string") &&
+      String(price).trim() !== "";
+    const numericPrice = hasPrice ? Number(price) : NaN;
+    if (!Number.isFinite(numericPrice) || numericPrice < 0) {
+      return res.status(400).json({ message: "Price must be a non-negative number." });
+    }
+
+    const cloudinaryResponse = await cloudinary.uploader.upload(image, {
+      folder: "products",
+    });
+
     const product = await Product.create({
-      name,
-      description,
-      price,
-      image: cloudinaryResponse?.secure_url
-        ? cloudinaryResponse.secure_url
-        : "",
-      category,
+      name: name.trim(),
+      description: description.trim(),
+      price: numericPrice,
+      image: cloudinaryResponse.secure_url,
+      category: category.trim(),
     });
     res.status(201).json(product);
   } catch (error) {
